@@ -433,7 +433,6 @@ export class FaceFinder extends React.Component {
     */
     var processfn = function(video, dt) {
       // render the video frame to the canvas element and extract RGBA pixel data
-      console.log(ctx)
       ctx.drawImage(video, 0, 0);
       var rgba = ctx.getImageData(0, 0, 640, 480).data;
       // prepare input to `run_cascade`
