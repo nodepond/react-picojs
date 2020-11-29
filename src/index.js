@@ -429,6 +429,8 @@ export class FaceFinder extends React.Component {
     /*
       (4) this function is called each time a video frame becomes available
     */
+	  let here = this
+
     var processfn = function(video, dt) {
       // render the video frame to the canvas element and extract RGBA pixel data
       ctx.drawImage(video, 0, 0);
@@ -458,14 +460,13 @@ export class FaceFinder extends React.Component {
 				// check the detection score
         // if it's above the threshold, draw it
         // (the constant 50.0 is empirical: other cascades might require a different one)
-				el[3]>50.0
+				return el[3]>50.0
 			})
 
-			console.log('foundData', foundData)
+      if (here.props.onDataUpdate) {
+				here.props.onDataUpdate(foundData)
+			}
 
-			if (this.props.onDataUpdate) (
-				this.props.onDataUpdate(foundData)
-			)
 			// draw detections
       for(var i=0; i<dets.length; ++i)
         // check the detection score
