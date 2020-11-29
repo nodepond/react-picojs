@@ -512,9 +512,7 @@ export class FaceFinder extends React.Component {
   }
   render() {
     return(
-      <div>
-        <p><center><canvas ref={(c) => this.context = c.getContext('2d')} width={this.props.width} height={this.props.height}></canvas></center></p>
-      </div>
+			<canvas ref={(c) => this.context = c.getContext('2d')} width={this.props.width} height={this.props.height}></canvas>
     )
   }
 }
