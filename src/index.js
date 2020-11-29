@@ -382,8 +382,6 @@ export class FaceFinder extends React.Component {
     this.context = React.createRef();
   }
   componentDidMount() {
-
-  
     var initialized = false;
     /*
       (0) check whether we're already running face detection
@@ -454,7 +452,21 @@ export class FaceFinder extends React.Component {
       var dets = pico.run_cascade(image, facefinder_classify_region, params);
       dets = update_memory(dets);
       dets = pico.cluster_detections(dets, 0.2); // set IoU threshold to 0.2
-      // draw detections
+			
+			// generate data to send out to callback
+			const foundData = dets.filter(el => {
+				// check the detection score
+        // if it's above the threshold, draw it
+        // (the constant 50.0 is empirical: other cascades might require a different one)
+				el[3]>50.0
+			})
+
+			console.log('foundData', foundData)
+
+			if (this.props.onDataUpdate) (
+				this.props.onDataUpdate(foundData)
+			)
+			// draw detections
       for(var i=0; i<dets.length; ++i)
         // check the detection score
         // if it's above the threshold, draw it
