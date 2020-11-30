@@ -467,8 +467,8 @@ export class FaceFinder extends React.Component {
 				// check the detection score
         // if it's above the threshold, draw it
 				// (the constant 50.0 is empirical: other cascades might require a different one)
-				// out hack uses 5 instewad of 50
-				return el[3]>5.0
+				// out hack uses 2 instead of 50
+				return el[3]>2.0
 			})
 
       if (here.props.onDataUpdate) {
@@ -480,7 +480,7 @@ export class FaceFinder extends React.Component {
         // check the detection score
         // if it's above the threshold, draw it
         // (the constant 50.0 is empirical: other cascades might require a different one)
-        if(dets[i][3]>5.0)
+        if(dets[i][3]>2.0)
         {
           var r, c, s;
           //
