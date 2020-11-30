@@ -432,35 +432,43 @@ export class FaceFinder extends React.Component {
 	  let here = this
 
     var processfn = function(video, dt) {
-      // render the video frame to the canvas element and extract RGBA pixel data
-      ctx.drawImage(video, 0, 0);
-      var rgba = ctx.getImageData(0, 0, 640, 480).data;
-      // prepare input to `run_cascade`
-      var image = {
-        "pixels": rgba_to_grayscale(rgba, 480, 640),
-        "nrows": 480,
-        "ncols": 640,
-        "ldim": 640
-      }
-      var params = {
-        "shiftfactor": 0.1, // move the detection window by 10% of its size
-        "minsize": 100,     // minimum size of a face
-        "maxsize": 1000,    // maximum size of a face
-        "scalefactor": 1.1  // for multiscale processing: resize the detection window by 10% when moving to the higher scale
-      }
+			// this is more or less just a very specifick hack for a very specific use-case
+			const vlength = document.getElementsByTagName('video').length
+			const clength = document.getElementsByClassName('a-canvas').length
+			
+      if (vlength > 0 && clength > 0) {
+				// very specific hack continued
+        video = document.getElementsByTagName('video')[0]
+        
+        ctx.drawImage(video, 0, 0, video.width, video.height);
+        var rgba = ctx.getImageData(0, 0, video.width, video.height).data;
+        var image = {
+          "pixels": rgba_to_grayscale(rgba, video.height, video.width),
+          "nrows": video.height,
+          "ncols": video.width,
+          "ldim": video.width
+        };
+        var params = {
+          "shiftfactor": 0.1,
+          "minsize": 100,
+          "maxsize": 1400,
+          "scalefactor": 1.1
+        };
       // run the cascade over the frame and cluster the obtained detections
       // dets is an array that contains (r, c, s, q) quadruplets
       // (representing row, column, scale and detection score)
-      var dets = pico.run_cascade(image, facefinder_classify_region, params);
-      dets = update_memory(dets);
+			var dets = pico.run_cascade(image, facefinder_classify_region, params);
+			// update_memory is for framebuffer, when doing video. We just process still images
+      // dets = update_memory(dets);
       dets = pico.cluster_detections(dets, 0.2); // set IoU threshold to 0.2
 			
 			// generate data to send out to callback
 			const foundData = dets.filter(el => {
 				// check the detection score
         // if it's above the threshold, draw it
-        // (the constant 50.0 is empirical: other cascades might require a different one)
-				return el[3]>50.0
+				// (the constant 50.0 is empirical: other cascades might require a different one)
+				// out hack uses 5 instewad of 50
+				return el[3]>5.0
 			})
 
       if (here.props.onDataUpdate) {
@@ -472,7 +480,7 @@ export class FaceFinder extends React.Component {
         // check the detection score
         // if it's above the threshold, draw it
         // (the constant 50.0 is empirical: other cascades might require a different one)
-        if(dets[i][3]>50.0)
+        if(dets[i][3]>5.0)
         {
           var r, c, s;
           //
@@ -511,12 +519,18 @@ export class FaceFinder extends React.Component {
             ctx.strokeStyle = 'red';
             ctx.stroke();
           }
-        }
+				}
+			}
     }
     /*
       (5) instantiate camera handling (see https://github.com/cbrandolino/camvas)
     */
-    var mycamvas = new camvas(ctx, processfn);
+
+		// var mycamvas = new camvas(ctx, processfn);
+		// This again is for our hack. We connect to our video html-element, that is found and referenced in processfn. We also need this processing not that often, so we call it once a second
+		setInterval(() => {
+			processfn(null, null)
+		}, 1000)
     /*
       (6) it seems that everything went well
     */
